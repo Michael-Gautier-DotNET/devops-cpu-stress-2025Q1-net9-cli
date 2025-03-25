@@ -37,10 +37,10 @@ Console.Write("Type number then <enter>:  ");
 
 string? CyclesText = Console.ReadLine();
 
-int Cycles = 1;
-int Cycle = 0;
+nuint Cycles = 1;
+nuint Cycle = 0;
 
-int.TryParse(CyclesText, out Cycles);
+nuint.TryParse(CyclesText, out Cycles);
 
 Console.WriteLine($"Running {Cycles} test runs");
 
@@ -48,7 +48,7 @@ File.AppendAllText(IterationLogFullPath, $"{new string('*', 33)}\n");
 File.AppendAllText(IterationLogFullPath, $"Cycles: {Cycles}\t{DateTime.Now}\n");
 File.AppendAllText(IterationLogFullPath, $"{new string('*', 28)}\n");
 
-int SumOfIterations = 0;
+nuint SumOfIterations = 0;
 
 DateTime CycleStart = DateTime.Now;
 
@@ -62,9 +62,10 @@ while(Cycle < Cycles) {
 	string FileName = DateTime.Now.ToString("yyyyMMdd_hh_mm_ss");
 	string FullPath = Path.Combine(LogDetailFilePath, $"T {FileName} {Cycles:D2} - {Cycle:D2}.txt");
 
-	System.Text.StringBuilder Buffer = new();
+	System.Text.StringBuilder LogBuffer = new();
+	System.Text.StringBuilder IterBuffer = new();
 
-	﻿int Iterations = 0;
+	﻿nuint Iterations = 0;
 
 	int PauseMs = DateTime.Now.Second * 100;
 
@@ -72,7 +73,7 @@ while(Cycle < Cycles) {
 		Console.WriteLine($"Pausing for {PauseMs}ms");
 		Thread.Sleep (PauseMs);
 		
-		Buffer.AppendLine($"Paused for {PauseMs}ms");
+		LogBuffer.AppendLine($"Paused for {PauseMs}ms");
 		
 		PauseMs = DateTime.Now.Second * 100;
 	}
@@ -82,13 +83,13 @@ while(Cycle < Cycles) {
 	DateTime Start = DateTime.Now;
 	DateTime Now = DateTime.Now;
 
-	for(int i = 0; Now.Second == Start.Second; i++) {
+	for(nuint i = 0; Now.Second == Start.Second; i++) {
 		Iterations = 1 + i;
 
 		if(i % 100_000 == 0){
 			Now = DateTime.Now;
-			Console.WriteLine ($"Cycle {Cycle} of {Cycles} Iteration {i:N0} {Now}");
-			Buffer.AppendLine ($"Iteration {i:N0} {Now}");
+			IterBuffer.AppendLine ($"Cycle {Cycle} of {Cycles} Iteration {i:N0} {Now}");
+			LogBuffer.AppendLine ($"Iteration {i:N0} {Now}");
 		}
 	}
 
@@ -96,18 +97,19 @@ while(Cycle < Cycles) {
 
 	DateTime End = DateTime.Now;
 
-	Console.WriteLine ($"Iterations {Iterations:N0} Start {Start} ... End {End}");
-	Buffer.AppendLine ($"Iterations {Iterations:N0} Start {Start} ... End {End}");
+	IterBuffer.AppendLine ($"Iterations {Iterations:N0} Start {Start} ... End {End}");
+	LogBuffer.AppendLine ($"Iterations {Iterations:N0} Start {Start} ... End {End}");
 
-	Console.WriteLine(FullPath);
-	File.WriteAllText(FullPath, Buffer.ToString());
+	IterBuffer.AppendLine(FullPath);
+	File.WriteAllText(FullPath, LogBuffer.ToString());
 	File.AppendAllText(IterationLogFullPath, $"***\t{Cycle:N0}\t");
 	File.AppendAllText(IterationLogFullPath, $"{new string('*', 60)}\n");
 	File.AppendAllText(IterationLogFullPath, $"{Start}\n");
 	File.AppendAllText(IterationLogFullPath, $"{Iterations:N0}\n");
 	File.AppendAllText(IterationLogFullPath, $"{End}\n");
 	File.AppendAllText(IterationLogFullPath, "\n\n");
-
+	
+	Console.Write(IterBuffer.ToString());
 }
 
 DateTime CycleEnd = DateTime.Now;
